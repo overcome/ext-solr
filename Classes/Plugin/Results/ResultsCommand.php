@@ -106,6 +106,12 @@ class ResultsCommand implements PluginCommand
       $productEnable = 'off';
       $productEnableSecond = 'offsecond';
       $productEnableThird = 'offthird';
+      $productEnableFour = 'offfour';
+      $productEnableFive = 'offfive';
+      $productEnableSix = 'offsix';
+      $productEnableSeven = 'offseven';
+      $productEnableEight = 'offeight';
+      $productEnableNine = 'offnine';
 
       if (isset($currentFacetGetValue['filter'])) {
         $currentFacetArr = array_unique( GeneralUtility::trimExplode( ':', urldecode($currentFacetGetValue['filter'][0]), true ) );
@@ -114,6 +120,12 @@ class ResultsCommand implements PluginCommand
           $productEnable = 'on';
           $productEnableSecond = 'onsecond';
           $productEnableThird = 'onthird';
+          $productEnableFour = 'onfour';
+          $productEnableFive = 'onfive';
+          $productEnableSix = 'onsix';
+          $productEnableSeven = 'onseven';
+          $productEnableEight = 'oneight';
+          $productEnableNine = 'onnine';
         }
       }
 
@@ -150,6 +162,12 @@ class ResultsCommand implements PluginCommand
           'facet_current_text' => $productEnable,
           'facet_current_text_second' => $productEnableSecond,
           'facet_current_text_third' => $productEnableThird,
+          'facet_current_text_four' => $productEnableFour,
+          'facet_current_text_five' => $productEnableFive,
+          'facet_current_text_six' => $productEnableSix,
+          'facet_current_text_seven' => $productEnableSeven,
+          'facet_current_text_eight' => $productEnableEight,
+          'facet_current_text_nine' => $productEnableNine,
 
           /**
            * Custom section ---  end  ---
