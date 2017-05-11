@@ -126,6 +126,31 @@ class FacetingCommand implements PluginCommand
         $template = clone $this->parentPlugin->getTemplate();
         $template->workOnSubpart('available_facets');
 
+
+      /**
+       *  Custom section --- start ---
+       */
+      $queryLinkBuilder = GeneralUtility::makeInstance(LinkBuilder::class,
+        $this->search->getQuery());
+      /* @var $queryLinkBuilder LinkBuilder */
+      $queryLinkBuilder->setLinkTargetPageId($this->parentPlugin->getLinkTargetPageId());
+
+      // Get facet parameter
+      $urlGetParameters = GeneralUtility::_GET('tx_solr');
+      $activeClass = 'active';
+      if (isset($urlGetParameters['filter'])) {
+        $activeClass = '';
+      }
+
+      $template->addVariable('remove_all_facets_cs', [
+        'url' => $queryLinkBuilder->getQueryUrl(['filter' => []]),
+        'text' => '###LLL:faceting_removeAllFilters###',
+        'activeClass' => $activeClass
+      ]);
+      /**
+       *  Custom section ---  end  ---
+       */
+
         $configuredFacets = $this->configuration->getSearchFacetingFacets();
 
         $facetRendererFactory = GeneralUtility::makeInstance(
@@ -159,6 +184,7 @@ class FacetingCommand implements PluginCommand
 
             $facetContent .= $facetRenderer->renderFacet();
         }
+
 
         $template->addSubpart('single_facet', $facetContent);
 

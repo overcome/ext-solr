@@ -99,6 +99,30 @@ class ResultsCommand implements PluginCommand
             ]
         );
 
+      /**
+       * Custom section --- start ---
+       */
+      $currentFacetGetValue = GeneralUtility::_GET('tx_solr');
+      $productEnable = 'off';
+      $productEnableSecond = 'offsecond';
+      $productEnableThird = 'offthird';
+
+      if (isset($currentFacetGetValue['filter'])) {
+        $currentFacetArr = array_unique( GeneralUtility::trimExplode( ':', urldecode($currentFacetGetValue['filter'][0]), true ) );
+
+        if ($currentFacetArr[1] == 'Product') {
+          $productEnable = 'on';
+          $productEnableSecond = 'onsecond';
+          $productEnableThird = 'onthird';
+        }
+      }
+
+
+      /**
+       * Custom section ---  end  ---
+       */
+
+
         return [
             'searched_for' => $searchedFor,
             'query' => $queryTerms,
@@ -117,7 +141,19 @@ class ResultsCommand implements PluginCommand
              * result_documents : is the loop name as in the template
              * result_document : is the marker name for the single items in the loop
              */
-            'loop_result_documents|result_document' => $this->getResultDocuments()
+            'loop_result_documents|result_document' => $this->getResultDocuments(),
+
+          /**
+           * Custom section --- start ---
+           */
+
+          'facet_current_text' => $productEnable,
+          'facet_current_text_second' => $productEnableSecond,
+          'facet_current_text_third' => $productEnableThird,
+
+          /**
+           * Custom section ---  end  ---
+           */
         ];
     }
 

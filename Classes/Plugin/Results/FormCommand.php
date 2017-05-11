@@ -71,6 +71,14 @@ class FormCommand implements PluginCommand
 
         $this->parentPlugin = $parentPlugin;
         $this->configuration = $parentPlugin->typoScriptConfiguration;
+
+      /**
+       * Custom section --- start ---
+       */
+      $this->search = $parentPlugin->getSearchResultSetService()->getSearch();
+      /**
+       * Custom section ---  end  ---
+       */
     }
 
     /**
@@ -83,13 +91,30 @@ class FormCommand implements PluginCommand
     {
         $url = $this->cObj->getTypoLink_URL($this->parentPlugin->typoScriptConfiguration->getSearchTargetPage());
 
+
+
+      /**
+       *  Custom section --- start ---
+       */
+      $foundResultsNumberCs = $this->search->getNumberOfResults() . ' results found';
+      /**
+       *  Custom section ---  end  ---
+       */
+
         $marker = [
             'action' => htmlspecialchars($url),
             'action_id' => intval($this->parentPlugin->typoScriptConfiguration->getSearchTargetPage()),
             'action_language' => intval($GLOBALS['TSFE']->sys_page->sys_language_uid),
             'action_language_parameter' => 'L',
             'accept-charset' => $GLOBALS['TSFE']->metaCharset,
-            'q' => $this->parentPlugin->getCleanUserQuery()
+            'q' => $this->parentPlugin->getCleanUserQuery(),
+          /**
+           *  Custom section --- start ---
+           */
+          'found_results_number_str' => $foundResultsNumberCs
+          /**
+           *  Custom section ---  end  ---
+           */
         ];
 
         // hook to modify the search form
