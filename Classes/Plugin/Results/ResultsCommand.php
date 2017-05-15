@@ -130,10 +130,30 @@ class ResultsCommand implements PluginCommand
       }
 
 
+      // Data regenerate
+      // Reduce marker template field detect logic
+      $dataResult = $this->getResultDocuments();
+      $dataResultNew = [];
+
+      if (is_array($dataResult) && count($dataResult) > 0) {
+        $i = 0;
+        foreach ($dataResult as $resInfo) {
+          $dataResultNew[$i] = $resInfo;
+
+          if ($resInfo['url'] != 'csLinkUrl_stringS') {
+            $dataResultNew[$i]['tcnewurl'] = $resInfo['url'];
+          }else{
+            $dataResultNew[$i]['tcnewurl'] = $resInfo['csLinkUrl_stringS'];
+          }
+
+          $i++;
+        }
+      }
+
+
       /**
        * Custom section ---  end  ---
        */
-
 
         return [
             'searched_for' => $searchedFor,
@@ -153,12 +173,13 @@ class ResultsCommand implements PluginCommand
              * result_documents : is the loop name as in the template
              * result_document : is the marker name for the single items in the loop
              */
-            'loop_result_documents|result_document' => $this->getResultDocuments(),
+//            'loop_result_documents|result_document' => $this->getResultDocuments(),
+
 
           /**
            * Custom section --- start ---
            */
-
+          'loop_result_documents|result_document' => $dataResultNew,
           'facet_current_text' => $productEnable,
           'facet_current_text_second' => $productEnableSecond,
           'facet_current_text_third' => $productEnableThird,
