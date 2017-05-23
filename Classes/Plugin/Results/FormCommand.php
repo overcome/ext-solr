@@ -1,4 +1,5 @@
 <?php
+
 namespace ApacheSolrForTypo3\Solr\Plugin\Results;
 
 /***************************************************************
@@ -33,111 +34,125 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
+ * Custom Section Get Typoscript setting --- start ---
+ */
+/**
+ * Custom Section Typoscript setting ---  end  ---
+ */
+
+/**
  * form command class to render the "simple" search form
  *
  * @author Ingo Renner <ingo@typo3.org>
  */
-class FormCommand implements PluginCommand
-{
+class FormCommand implements PluginCommand {
+
+  /**
+   *
+   * @var ContentObjectRenderer
+   */
+  protected $cObj;
+
+  /**
+   * Parent plugin
+   *
+   * @var CommandPluginBase
+   */
+  protected $parentPlugin;
+
+  /**
+   * Configuration
+   *
+   * @var TypoScriptConfiguration
+   */
+  protected $configuration;
+
+  /**
+   * Constructor for class ApacheSolrForTypo3\Solr\Plugin\Results\FormCommand
+   *
+   * @param CommandPluginBase $parentPlugin parent plugin
+   */
+  public function __construct( CommandPluginBase $parentPlugin ) {
+    $this->cObj = GeneralUtility::makeInstance( ContentObjectRenderer::class );
+
+    $this->parentPlugin  = $parentPlugin;
+    $this->configuration = $parentPlugin->typoScriptConfiguration;
 
     /**
-     *
-     * @var ContentObjectRenderer
+     * Custom section --- start ---
      */
-    protected $cObj;
+    $this->search = $parentPlugin->getSearchResultSetService()->getSearch();
+    /**
+     * Custom section ---  end  ---
+     */
+  }
+
+  /**
+   * Provides the values for the markers in the simple form template
+   *
+   * @return array An array containing values for markers in the simple form template
+   * @throws \InvalidArgumentException if an registered form modifier fails to implement the required interface ApacheSolrForTypo3\Solr\Plugin\FormModifier
+   */
+  public function execute() {
+    $url = $this->cObj->getTypoLink_URL( $this->parentPlugin->typoScriptConfiguration->getSearchTargetPage() );
 
     /**
-     * Parent plugin
-     *
-     * @var CommandPluginBase
+     *  Custom section --- start ---
      */
-    protected $parentPlugin;
+    $solrCustomConfigResultSingle = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_solr_pi_results.']['settings.']['solrResSingleRecord'];
+    $solrCustomConfigResultMulti  = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_solr_pi_results.']['settings.']['solrResMoreRecords'];
 
-    /**
-     * Configuration
-     *
-     * @var TypoScriptConfiguration
-     */
-    protected $configuration;
+    $solrCustomResultNum = (int) $this->search->getNumberOfResults();
 
-    /**
-     * Constructor for class ApacheSolrForTypo3\Solr\Plugin\Results\FormCommand
-     *
-     * @param CommandPluginBase $parentPlugin parent plugin
-     */
-    public function __construct(CommandPluginBase $parentPlugin)
-    {
-        $this->cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-
-        $this->parentPlugin = $parentPlugin;
-        $this->configuration = $parentPlugin->typoScriptConfiguration;
-
-      /**
-       * Custom section --- start ---
-       */
-      $this->search = $parentPlugin->getSearchResultSetService()->getSearch();
-      /**
-       * Custom section ---  end  ---
-       */
+    if ($solrCustomResultNum >1) {
+      $solrCustomResultText = $solrCustomResultNum . ' ' . $solrCustomConfigResultMulti;
+    }else{
+      $solrCustomResultText = $solrCustomResultNum . ' ' . $solrCustomConfigResultSingle;
     }
 
+//    $foundResultsNumberCs = $this->search->getNumberOfResults() . ' results found';
+    $foundResultsNumberCs = $solrCustomResultText;
     /**
-     * Provides the values for the markers in the simple form template
-     *
-     * @return array An array containing values for markers in the simple form template
-     * @throws \InvalidArgumentException if an registered form modifier fails to implement the required interface ApacheSolrForTypo3\Solr\Plugin\FormModifier
+     *  Custom section ---  end  ---
      */
-    public function execute()
-    {
-        $url = $this->cObj->getTypoLink_URL($this->parentPlugin->typoScriptConfiguration->getSearchTargetPage());
 
-
-
+    $marker = [
+      'action'                    => htmlspecialchars( $url ),
+      'action_id'                 => intval( $this->parentPlugin->typoScriptConfiguration->getSearchTargetPage() ),
+      'action_language'           => intval( $GLOBALS['TSFE']->sys_page->sys_language_uid ),
+      'action_language_parameter' => 'L',
+      'accept-charset'            => $GLOBALS['TSFE']->metaCharset,
+      'q'                         => $this->parentPlugin->getCleanUserQuery(),
       /**
        *  Custom section --- start ---
        */
-      $foundResultsNumberCs = $this->search->getNumberOfResults() . ' results found';
+      'found_results_number_str'  => $foundResultsNumberCs
       /**
        *  Custom section ---  end  ---
        */
+    ];
 
-        $marker = [
-            'action' => htmlspecialchars($url),
-            'action_id' => intval($this->parentPlugin->typoScriptConfiguration->getSearchTargetPage()),
-            'action_language' => intval($GLOBALS['TSFE']->sys_page->sys_language_uid),
-            'action_language_parameter' => 'L',
-            'accept-charset' => $GLOBALS['TSFE']->metaCharset,
-            'q' => $this->parentPlugin->getCleanUserQuery(),
-          /**
-           *  Custom section --- start ---
-           */
-          'found_results_number_str' => $foundResultsNumberCs
-          /**
-           *  Custom section ---  end  ---
-           */
-        ];
+    // hook to modify the search form
+    if ( is_array( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'] ) ) {
+      foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'] as $classReference ) {
+        $formModifier = GeneralUtility::getUserObj( $classReference );
 
-        // hook to modify the search form
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'] as $classReference) {
-                $formModifier = GeneralUtility::getUserObj($classReference);
+        if ( $formModifier instanceof FormModifier ) {
+          if ( $formModifier instanceof CommandPluginAware ) {
+            $formModifier->setParentPlugin( $this->parentPlugin );
+          }
 
-                if ($formModifier instanceof FormModifier) {
-                    if ($formModifier instanceof CommandPluginAware) {
-                        $formModifier->setParentPlugin($this->parentPlugin);
-                    }
-
-                    $marker = $formModifier->modifyForm($marker,
-                        $this->parentPlugin->getTemplate());
-                } else {
-                    throw new \InvalidArgumentException(
-                        'Form modifier "' . $classReference . '" must implement the ApacheSolrForTypo3\Solr\Plugin\FormModifier interface.',
-                        1262864703
-                    );
-                }
-            }
+          $marker = $formModifier->modifyForm( $marker,
+            $this->parentPlugin->getTemplate() );
+        } else {
+          throw new \InvalidArgumentException(
+            'Form modifier "' . $classReference . '" must implement the ApacheSolrForTypo3\Solr\Plugin\FormModifier interface.',
+            1262864703
+          );
         }
-
-        return $marker;
+      }
     }
+
+    return $marker;
+  }
 }
