@@ -146,6 +146,12 @@ class ResultsCommand implements PluginCommand
             $dataResultNew[$i]['tcnewurl'] = $resInfo['csLinkUrl_stringS'];
           }
 
+          if ($resInfo['csProductBgColor_stringS'] != ''){
+            $dataResultNew[$i]['productbgcolor'] = ' data-bgcolor="' . $resInfo['csProductBgColor_stringS'] . '"';
+          }else{
+            $dataResultNew[$i]['productbgcolor'] = '';
+          }
+
           $i++;
         }
       }
