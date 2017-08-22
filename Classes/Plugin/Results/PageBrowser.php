@@ -143,12 +143,20 @@ class PageBrowser
                     '###NUMBER###' => $i,
                     '###NUMBER_DISPLAY###' => $i + 1,
                     '###LINK###' => $this->getPageLink($i),
+                  /**
+                   * Custom section for pagination --- start ---
+                   */
+                    '###CSTOTALPAGESNUMBER###' => ($this->numberOfPages)?($this->numberOfPages):0,
+                  /**
+                   * Custom section for pagination ---  end  ---
+                   */
                 ];
                 $pageLinks .= $this->contentObject->substituteMarkerArray($template,
                     $localMarkers);
             }
             $subPartMarkers['###PAGE###'] = $pageLinks;
             $subPartMarkers['###CURRENT###'] = '';
+
 
             // Less pages part
             if ($start == 0 || !$this->configuration['enableLessPages']) {
