@@ -134,10 +134,17 @@ class ResultsCommand implements PluginCommand
       // Reduce marker template field detect logic
       $dataResult = $this->getResultDocuments();
       $dataResultNew = [];
+      $dataRemovePhonePadStatus = false;
 
       if (is_array($dataResult) && count($dataResult) > 0) {
         $i = 0;
         foreach ($dataResult as $resInfo) {
+
+          if ( ( strtolower( trim( $rawQueryTerms ) ) === 'phone' ) && ( strpos( strtolower( $resInfo['title'] ), 'phonepad' ) !== false ) ) {
+            $dataRemovePhonePadStatus = true;
+            continue;
+          }
+
           $dataResultNew[$i] = $resInfo;
 
           if ($resInfo['url'] != 'csLinkUrl_stringS') {
@@ -155,6 +162,8 @@ class ResultsCommand implements PluginCommand
           $i++;
         }
       }
+
+      //print_r($dataResultNew);
 
 
       /**
