@@ -115,6 +115,11 @@ class FormCommand implements PluginCommand {
     /**
      *  Custom section ---  end  ---
      */
+    $qIsEmtpy = 'no';
+    if ($this->parentPlugin->getCleanUserQuery() === '') {
+      $qIsEmtpy = 'yes';
+    }
+
 
     $marker = [
       'action'                    => htmlspecialchars( $url ),
@@ -126,12 +131,13 @@ class FormCommand implements PluginCommand {
       /**
        *  Custom section --- start ---
        */
-      'found_results_number_str'  => $foundResultsNumberCs
+      'found_results_number_str'  => $foundResultsNumberCs,
+      'q_is_empty' => $qIsEmtpy
       /**
        *  Custom section ---  end  ---
        */
     ];
-
+    
     // hook to modify the search form
     if ( is_array( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'] ) ) {
       foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchForm'] as $classReference ) {

@@ -142,13 +142,20 @@ class Search implements SingletonInterface
         $query = $this->modifyQuery($query);
         $this->query = $query;
 
+        $csQueryString = $query->getQueryString();
+
+        if (strtolower($query->getQueryString()) === 'phone') {
+            $csQueryString = $query->getQueryString().' -PhonePad';
+        }
+
         if (empty($limit)) {
             $limit = $query->getResultsPerPage();
         }
 
         try {
             $response = $this->solr->search(
-                $query->getQueryString(),
+                //$query->getQueryString(),
+                $csQueryString,
                 $offset,
                 $limit,
                 $query->getQueryParameters()
@@ -182,6 +189,16 @@ class Search implements SingletonInterface
                 );
             }
         }
+
+
+// foreach ($srcResponse as $kk=>$info) {
+//     $titleArr = $info->getField('title');
+
+//     if ($titleArr['value'] == 'PhonePad 3') {
+//         $csRemovedIndex = (int)$kk;
+//     }
+// }
+
 
         $response = $this->modifyResponse($response);
         $this->response = $response;

@@ -140,10 +140,10 @@ class ResultsCommand implements PluginCommand
         $i = 0;
         foreach ($dataResult as $resInfo) {
 
-          if ( ( strtolower( trim( $rawQueryTerms ) ) === 'phone' ) && ( strpos( strtolower( $resInfo['title'] ), 'phonepad' ) !== false ) ) {
-            $dataRemovePhonePadStatus = true;
-            continue;
-          }
+          // if ( ( strtolower( trim( $rawQueryTerms ) ) === 'phone' ) && ( strpos( strtolower( $resInfo['title'] ), 'phonepad' ) !== false ) ) {
+          //   $dataRemovePhonePadStatus = true;
+          //   continue;
+          // }
 
           $dataResultNew[$i] = $resInfo;
 
@@ -162,9 +162,6 @@ class ResultsCommand implements PluginCommand
           $i++;
         }
       }
-
-      //print_r($dataResultNew);
-
 
       /**
        * Custom section ---  end  ---
